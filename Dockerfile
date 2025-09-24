@@ -31,14 +31,22 @@ COPY ./requirements.txt .
 # Install the dependencies from the local wheels, which is much faster
 RUN pip install --no-cache /wheels/*
 
+# Create a non-root user to run the application
+RUN useradd --create-home appuser
+USER appuser
+
+# Set the working directory for the new user
+WORKDIR /home/appuser/app
+
 # Copy your application source code into the container
-# This assumes your code will be inside an "app/" directory
-COPY ./app ./app
+COPY ./app.py .
+COPY ./src ./src
+COPY ./tests ./tests
+COPY ./pytest.ini .
 
 # Expose the port that the Uvicorn server will run on
 EXPOSE 8000
 
 # The command to run your application
-# This tells uvicorn to run the "app" object inside the "main.py" file.
-# --host 0.0.0.0 makes it accessible from outside the container.
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# This tells uvicorn to run the "app" object inside the "app.py" file.
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]

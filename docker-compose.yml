@@ -1,0 +1,26 @@
+services:
+  mongo_db:
+    image: mongo:6
+    container_name: mongo_db
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: user
+      MONGO_INITDB_ROOT_PASSWORD: password
+    ports:
+      - "27018:27017" # Puerto 27018
+    volumes:
+      - mongo_data:/data/db
+
+  comments_service:
+    build: .
+    container_name: comments_service
+    restart: always
+    depends_on:
+      - mongo_db
+    ports:
+      - "8000:8000"  # Accedes con localhost:8000
+    environment:
+      DATABASE_URL: "mongodb://user:password@mongo_db:27017/comments_db?authSource=admin"
+
+volumes:
+  mongo_data:
