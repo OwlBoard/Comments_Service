@@ -20,3 +20,6 @@ pymongo[srv]
 pytest
 pytest-asyncio
 httpx
+
+# Mocking MongoDB for tests
+mongomock-motor
