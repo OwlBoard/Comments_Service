@@ -48,6 +48,14 @@ jobs:
       - name: Test with Pytest
         run: |
           pytest
+      
+      - name: Debug secrets (masked)
+        run: |
+          echo "USERNAME length: ${#DOCKERHUB_USERNAME}"
+          echo "TOKEN length: ${#DOCKERHUB_TOKEN}"
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
       # Step 6: Log in to Docker Hub
       # This step is necessary to avoid Docker Hub rate limits on anonymous pulls.
