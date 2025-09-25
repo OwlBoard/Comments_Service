@@ -1,8 +1,13 @@
-name: Docker Test
+# This name will appear in the "Actions" tab of your GitHub repository.
+name: Python CI/CD Pipeline
 
+# This section defines the triggers for the workflow.
+# It will run on every push to any branch and on any pull request.
 on:
-  workflow_dispatch:   # lo puedes lanzar manualmente desde GitHub Actions
-
+  push:
+    branches: [ "**" ] # Runs on pushes to all branches
+  pull_request:
+    branches: [ "main" ] # Runs on pull requests targeting the main branch
 jobs:
   docker:
     runs-on: ubuntu-latest
