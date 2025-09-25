@@ -49,11 +49,20 @@ jobs:
         run: |
           pytest
 
-      # Step 6: Build a Docker image (optional but good practice).
+      # Step 6: Log in to Docker Hub
+      # This step is necessary to avoid Docker Hub rate limits on anonymous pulls.
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Step 7: Build a Docker image (optional but good practice).
       # This step just builds the image to ensure your Dockerfile is valid.
       # It does not push it to a registry yet.
       - name: Build Docker Image
-        if: success() # Only run this step if all previous steps passed
+        if: success() # Only run this step if all previous steps passed and secrets are available
         run: |
           # This assumes you have a Dockerfile in the root of your repository.
           docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+
