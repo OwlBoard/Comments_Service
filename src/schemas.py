@@ -3,7 +3,6 @@ from typing import Optional, List
 from beanie import PydanticObjectId
 from datetime import datetime
 
-# --------- Comment Schemas ---------
 class CommentBase(BaseModel):
     content: str = Field(..., min_length=1, max_length=500, json_schema_extra={"example": "Gran dibujo"})
 

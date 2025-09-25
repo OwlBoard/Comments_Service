@@ -15,9 +15,9 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-# Montamos la API REST
+# API REST
 app.include_router(comments_router, prefix="/comments", tags=["Comments"])
-# Montamos la API GraphQL
+# API GraphQL
 app.include_router(graphql_app, prefix="/graphql")
 
 if __name__ == "__main__":
