@@ -92,12 +92,23 @@ async def update_comment(comment_id: PydanticObjectId, comment_update: schemas.C
     await comment.save()
     return comment
 
-# DELETE Elimina un comentario específico.
-@router.delete("/{comment_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Eliminar un comentario")
+# DELETE Elimina un comentario por Id.
+@router.delete("/{comment_id}", status_code=status.HTTP_200_OK, summary="Eliminar un comentario por ID")
 async def delete_comment(comment_id: PydanticObjectId):
     comment = await Comment.get(comment_id)
     if not comment:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Comentario no encontrado")
 
     await comment.delete()
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
+    return {"message": "Comentario eliminado"}
+
+# DELETE Elimina un comentario por texto específico.
+@router.delete("/text/{comment_text}", status_code=status.HTTP_200_OK, summary="Eliminar un comentario por su contenido")
+async def delete_comment_by_text(comment_text: str):
+    # Busca el primer comentario que coincida exactamente con el texto.
+    comment = await Comment.find_one(Comment.content == comment_text)
+    if not comment:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Comentario no encontrado")
+
+    await comment.delete()
+    return {"message": "Comentario eliminado"}
