@@ -7,6 +7,15 @@ from datetime import datetime, timezone
 
 router = APIRouter()
 
+# Handle CORS preflight OPTIONS requests
+@router.options("/dashboards/{dashboard_id}/users/{user_id}/comments")
+async def options_comments():
+    return Response(status_code=200)
+
+@router.options("/dashboards/{dashboard_id}/users/{user_id}/comments/{comment_id}")
+async def options_comment_by_id():
+    return Response(status_code=200)
+
 async def parse_coordinates(
     coordinates: str = Query(
         ...,
