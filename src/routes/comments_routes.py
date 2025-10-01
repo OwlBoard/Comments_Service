@@ -34,11 +34,17 @@ async def parse_coordinates(
 async def create_comment(
     dashboard_id: PydanticObjectId,
     user_id: PydanticObjectId,
-    comment_in: schemas.CommentCreate,
-    coords_list: List[float] = Depends(parse_coordinates)
+    comment_in: schemas.CommentCreate
 ):
+    coords_list = [float(c.strip()) for c in comment_in.coordinates.split(',')]
+    if len(coords_list) != 2:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Las coordenadas deben tener dos valores (x,y)."
+        )
+
     new_comment = Comment(
-        **comment_in.model_dump(),
+        content=comment_in.content,
         dashboard_id=dashboard_id,
         user_id=user_id,
         coordinates=coords_list

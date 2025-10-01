@@ -7,7 +7,7 @@ class CommentBase(BaseModel):
     content: str = Field(..., min_length=1, max_length=500, json_schema_extra={"example": "Gran dibujo"})
 
 class CommentCreate(CommentBase):
-    pass
+    coordinates: str = Field(..., pattern=r"^-?\d+(\.\d+)?,-?\d+(\.\d+)?$", json_schema_extra={"example": "150.5,320.0"})
 
 class CommentUpdate(BaseModel):
     content: Optional[str] = Field(None, min_length=1, max_length=500, json_schema_extra={"example": "He actualizado mi comentario."})
