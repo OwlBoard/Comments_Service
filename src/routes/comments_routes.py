@@ -45,6 +45,14 @@ async def create_comment(
     user_id: PydanticObjectId,
     comment_in: schemas.CommentCreate
 ):
+    # Validar que el contenido no esté vacío después de limpiar espacios
+    content = comment_in.content.strip()
+    if not content:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El contenido del comentario no puede estar vacío"
+        )
+    
     coords_list = [float(c.strip()) for c in comment_in.coordinates.split(',')]
     if len(coords_list) != 2:
         raise HTTPException(
@@ -53,7 +61,7 @@ async def create_comment(
         )
 
     new_comment = Comment(
-        content=comment_in.content,
+        content=content,  # Usar el contenido limpio
         dashboard_id=dashboard_id,
         user_id=user_id,
         coordinates=coords_list
@@ -122,10 +130,42 @@ async def update_comment(comment_id: PydanticObjectId, comment_update: schemas.C
     if not update_data:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No se enviaron datos")
 
+    # Validar que el contenido no esté vacío si se está actualizando
+    if 'content' in update_data:
+        content = update_data['content'].strip()
+        if not content:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="El contenido del comentario no puede estar vacío"
+            )
+        update_data['content'] = content
+
     for key, value in update_data.items():
         setattr(comment, key, value)
     comment.updated_at = datetime.now(timezone.utc)
 
+    await comment.save()
+    return comment
+
+# PUT Actualiza solo las coordenadas de un comentario
+@router.put(
+    "/{comment_id}/coordinates",
+    response_model=schemas.CommentOut,
+    summary="Actualizar coordenadas de un comentario"
+)
+async def update_comment_coordinates(comment_id: PydanticObjectId, coordinates: List[float]):
+    comment = await Comment.get(comment_id)
+    if not comment:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Comentario no encontrado")
+    
+    if len(coordinates) != 2:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Las coordenadas deben tener dos valores (x,y)."
+        )
+
+    comment.coordinates = coordinates
+    comment.updated_at = datetime.now(timezone.utc)
     await comment.save()
     return comment
 

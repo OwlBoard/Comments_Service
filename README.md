@@ -2,42 +2,27 @@
 
 This service, built with FastAPI and Beanie (MongoDB), manages all comments within the OwlBoard whiteboards.
 
-## 🚀 Getting Started
-
-This service is designed to be run as a Docker container. The easiest way to get it up and running is by using the `docker-compose.yml` file located in the main OwlBoard project repository.
-
-1.  **Clone the main repository** (if you haven't already):
-    ```bash
-    git clone --recursive https://github.com/OwlBoard/OwlBoard.git
-    cd OwlBoard
-    ```
-
-2.  **Start the services with Docker Compose:**
-    ```bash
-    docker compose up
-    ```
-
-The comments service will be available at `http://localhost:8001`.
-
+---
+ 
 ## 📚 API Endpoints
-
+ 
 The available service endpoints are detailed below.
-
+ 
 ---
 
 ### 1. Create a new comment
 
 Creates a new comment associated with a user and a board, specifying its content and coordinates.
 
-*   **Endpoint:** `POST /dashboards/{dashboard_id}/users/{user_id}/comments`
-*   **Status Code:** `201 CREATED`
+- **Endpoint:** `POST /dashboards/{dashboard_id}/users/{user_id}/comments`  
+- **Status Code:** `201 CREATED`
 
 #### Path Parameters
 
-| Parameter      | Type               | Description                             |
-| :------------- | :----------------- | :-------------------------------------- |
+| Parameter      | Type               | Description                                    |
+| :------------- | :----------------- | :--------------------------------------------- |
 | `dashboard_id` | `PydanticObjectId` | The ID of the board where the comment is created. |
-| `user_id`      | `PydanticObjectId` | The ID of the user creating the comment. |
+| `user_id`      | `PydanticObjectId` | The ID of the user creating the comment.          |
 
 #### Request Body
 
@@ -48,60 +33,100 @@ Creates a new comment associated with a user and a board, specifying its content
 }
 ```
 
-#### Respuesta Exitosa (Success Response)
+#### Success Response
 
 ```json
 {
-  "id": "650c1f2a1b2c3d4e5f6a7b8c",
-  "dashboard_id": "6507f1f130ade8d4e9bf7b5a",
-  "user_id": "6507f1f130ade8d4e9bf7b5b",
-  "content": "Este es un nuevo comentario.",
-  "coordinates": [150.5, 320.0],
-  "created_at": "2023-09-21T12:00:00Z",
-  "updated_at": "2023-09-21T12:00:00Z"
+  "content": "Gran dibujo",
+  "_id": "68dca9b72cbdae9d5f189556",
+  "dashboard_id": "5eb7cf5a86d9755df3a6c593",
+  "user_id": "5eb7cf5a86d9755df3a6c593",
+  "coordinates": [
+    150.5,
+    320
+  ],
+  "created_at": "2025-10-01T04:10:31.732304Z",
+  "updated_at": "2025-10-01T04:10:31.732310Z"
 }
 ```
 
----
-
-### 2. Obtener todos los comentarios de un tablero
+### 2. Get all comments from a board
 
 *   **Endpoint:** `GET /dashboards/{dashboard_id}`
-*   **Descripción:** Devuelve una lista con todos los comentarios que pertenecen a un tablero específico.
+*   **Description:** Returns a list of all comments belonging to a specific board.
 
----
+#### Path Parameters
 
-### 3. Obtener un comentario por ID
+| Parameter      | Type               | Description                               |
+| :------------- | :----------------- | :---------------------------------------- |
+| `dashboard_id` | `PydanticObjectId` | The ID of the board to get comments from. |
+
+#### Success Response (`200 OK`)
+
+Returns a JSON array of comment objects. If there are no comments, it returns an empty array `[]`.
+
+### 3. Get a comment by ID
 
 *   **Endpoint:** `GET /{comment_id}`
-*   **Descripción:** Devuelve un comentario específico basado en su ID.
-*   **Errores:** `404 NOT FOUND` si el comentario no existe.
+*   **Description:** Returns a specific comment based on its ID.
+*   **Errors:** `404 NOT FOUND` if the comment does not exist.
 
----
-
-### 4. Actualizar un comentario
-
-*   **Endpoint:** `PUT /{comment_id}`
-*   **Descripción:** Actualiza el contenido y/o las coordenadas de un comentario existente.
-
-#### Cuerpo de la Solicitud (Request Body)
-
-Puedes enviar uno o más campos para actualizar.
+#### Success Response
 
 ```json
 {
-  "content": "Este es el contenido actualizado.",
-  "coordinates": [200.0, 450.5]
+  "content": "Gran dibujo",
+  "_id": "68dca9b72cbdae9d5f189556",
+  "dashboard_id": "5eb7cf5a86d9755df3a6c593",
+  "user_id": "5eb7cf5a86d9755df3a6c593",
+  "coordinates": [
+    150.5,
+    320
+  ],
+  "created_at": "2025-10-01T04:10:31.732000",
+  "updated_at": "2025-10-01T04:10:31.732000"
 }
 ```
 
-*   **Errores:** `404 NOT FOUND` si el comentario no existe.
+### 4. Update a comment by ID
 
----
+- **Endpoint:** `PUT /{comment_id}`
+- **Description:** Updates the content of an existing comment identified by its ID.
+- **Errors:**
+  - `404 NOT FOUND` if the comment does not exist
+  - `400 BAD REQUEST` if no data is sent to update
 
-### 5. Eliminar un comentario
+#### Update Parameters
 
-*   **Endpoint:** `DELETE /{comment_id}`
-*   **Descripción:** Elimina un comentario de forma permanente usando su ID.
-*   **Respuesta:** `{"message": "Comentario eliminado"}`
-*   **Errores:** `404 NOT FOUND` si el comentario no existe.
+```json
+{
+  "content": "Updated comment content",
+  "coordinates": "160.5,330.0"
+}
+```
+
+### 5. Update a comment by text
+
+- **Endpoint:** `PUT /update/{comment_text}`
+- **Description:** Updates the first comment that matches the exact content provided.
+- **Errors:**
+  - `404 NOT FOUND` if no comment matches the text
+  - `400 BAD REQUEST` if no data is sent to update
+
+#### Request Format
+
+Same structure as update by ID endpoint.
+
+### 6. Delete a comment by ID
+
+- **Endpoint:** `DELETE /{comment_id}`
+- **Description:** Permanently deletes a comment using its ID.
+- **Success Response (`200 OK`):** `{"message": "Comentario eliminado"}`
+- **Errors:** `404 NOT FOUND` if the comment does not exist.
+
+### 7. Delete a comment by text
+
+- **Endpoint:** `DELETE /text/{comment_text}`
+- **Description:** Permanently deletes the first comment that matches the exact content provided.
+- **Success Response (`200 OK`):** `{"message": "Comentario eliminado"}`
+- **Errors:** `404 NOT FOUND` if no comment matches the text.
