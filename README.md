@@ -2,21 +2,6 @@
 
 This service, built with FastAPI and Beanie (MongoDB), manages all comments within the OwlBoard whiteboards.
 
-## 🚀 Getting Started
-
-This service is designed to be run as a Docker container. The easiest way to get it up and running is by using the `docker-compose.yml` file located in the main OwlBoard project repository.
-
-1.  **Clone the main repository** (if you haven't already):
-    ```bash
-    git clone --recursive https://github.com/OwlBoard/OwlBoard.git
-    cd OwlBoard
-    ```
-
-2.  **Start the services with Docker Compose:**
-    ```bash
-    docker compose up
-    ```
-
 The comments service will be available at `http://localhost:8001`.
 
 ## 📚 API Endpoints
