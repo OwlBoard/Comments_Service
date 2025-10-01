@@ -11,6 +11,7 @@ class CommentCreate(CommentBase):
 
 class CommentUpdate(BaseModel):
     content: Optional[str] = Field(None, min_length=1, max_length=500, json_schema_extra={"example": "He actualizado mi comentario."})
+    coordinates: Optional[List[float]] = Field(None, min_items=2, max_items=2, json_schema_extra={"example": [150.5, 320.0]})
 
 class CommentOut(CommentBase):
     id: PydanticObjectId = Field(..., alias="_id")
