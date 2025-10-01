@@ -4,8 +4,22 @@ fastapi
 # ASGI Server to run FastAPI
 uvicorn[standard]
 
-# Database Object-Relational Mapper (ORM)
-sqlalchemy
+# GraphQL Support
+strawberry-graphql[fastapi]
 
-# MySQL Database Driver (for connecting to your relational DB)
-PyMySQL
+# ODM asíncrono para MongoDB, basado en Pydantic
+beanie
+
+# MongoDB Driver and BSON Support
+motor
+
+# MongoDB Client with SRV support
+pymongo[srv]
+
+# Pytest
+pytest
+pytest-asyncio
+httpx
+
+# Mocking MongoDB for tests
+mongomock-motor
