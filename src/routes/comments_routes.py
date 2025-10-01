@@ -70,11 +70,33 @@ async def get_all_comments_from_dashboard(dashboard_id: PydanticObjectId):
     ).to_list()
     return comments
 
-# PUT Actualiza un comentario específico.
+# PUT Actualiza un comentario por su contenido.
+@router.put(
+    "/update/{comment_text}",
+    response_model=schemas.CommentOut,
+    summary="Actualizar un comentario por su contenido"
+)
+async def update_comment_by_text(comment_text: str, comment_update: schemas.CommentUpdate):
+    comment = await Comment.find_one(Comment.content == comment_text)
+    if not comment:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Comentario no encontrado")
+
+    update_data = comment_update.model_dump(exclude_unset=True)
+    if not update_data:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No se enviaron datos para actualizar")
+
+    for key, value in update_data.items():
+        setattr(comment, key, value)
+    comment.updated_at = datetime.now(timezone.utc)
+
+    await comment.save()
+    return comment
+
+# PUT Actualiza un comentario por Id.
 @router.put(
     "/{comment_id}",
     response_model=schemas.CommentOut,
-    summary="Actualizar un comentario"
+    summary="Actualizar un comentario por ID"
 )
 async def update_comment(comment_id: PydanticObjectId, comment_update: schemas.CommentUpdate):
     comment = await Comment.get(comment_id)
