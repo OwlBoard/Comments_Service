@@ -4,6 +4,12 @@ fastapi
 # ASGI Server to run FastAPI
 uvicorn[standard]
 
+# WebSocket support
+websockets
+
+# JSON logging
+python-json-logger
+
 # GraphQL Support
 strawberry-graphql[fastapi]
 

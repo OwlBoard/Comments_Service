@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, status, Response, Query, Depends
 from beanie import PydanticObjectId 
 from src import schemas
 from src.models import Comment
+from src.websocket_manager import comment_connection_manager
 from typing import List
 from datetime import datetime, timezone
 
@@ -64,9 +65,27 @@ async def create_comment(
         content=content,  # Usar el contenido limpio
         dashboard_id=dashboard_id,
         user_id=user_id,
+        user_name=comment_in.user_name,  # Store the username
         coordinates=coords_list
     )
     await new_comment.insert()
+    
+    # Broadcast the new comment to all connected clients
+    comment_dict = {
+        "_id": str(new_comment.id),
+        "dashboard_id": str(new_comment.dashboard_id),
+        "user_id": str(new_comment.user_id),
+        "user_name": new_comment.user_name,  # Include username in broadcast
+        "content": new_comment.content,
+        "coordinates": new_comment.coordinates,
+        "created_at": new_comment.created_at.isoformat(),
+        "updated_at": new_comment.updated_at.isoformat()
+    }
+    await comment_connection_manager.broadcast_comment_created(
+        str(dashboard_id),
+        comment_dict
+    )
+    
     return new_comment
 
 # GET Obtener comentario
@@ -113,6 +132,22 @@ async def update_comment_by_text(comment_text: str, comment_update: schemas.Comm
     comment.updated_at = datetime.now(timezone.utc)
 
     await comment.save()
+    
+    # Broadcast the updated comment to all connected clients
+    comment_dict = {
+        "_id": str(comment.id),
+        "dashboard_id": str(comment.dashboard_id),
+        "user_id": str(comment.user_id),
+        "content": comment.content,
+        "coordinates": comment.coordinates,
+        "created_at": comment.created_at.isoformat(),
+        "updated_at": comment.updated_at.isoformat()
+    }
+    await comment_connection_manager.broadcast_comment_updated(
+        str(comment.dashboard_id),
+        comment_dict
+    )
+    
     return comment
 
 # PUT Actualiza un comentario por Id.
@@ -145,6 +180,22 @@ async def update_comment(comment_id: PydanticObjectId, comment_update: schemas.C
     comment.updated_at = datetime.now(timezone.utc)
 
     await comment.save()
+    
+    # Broadcast the updated comment to all connected clients
+    comment_dict = {
+        "_id": str(comment.id),
+        "dashboard_id": str(comment.dashboard_id),
+        "user_id": str(comment.user_id),
+        "content": comment.content,
+        "coordinates": comment.coordinates,
+        "created_at": comment.created_at.isoformat(),
+        "updated_at": comment.updated_at.isoformat()
+    }
+    await comment_connection_manager.broadcast_comment_updated(
+        str(comment.dashboard_id),
+        comment_dict
+    )
+    
     return comment
 
 # PUT Actualiza solo las coordenadas de un comentario
@@ -167,6 +218,22 @@ async def update_comment_coordinates(comment_id: PydanticObjectId, coordinates: 
     comment.coordinates = coordinates
     comment.updated_at = datetime.now(timezone.utc)
     await comment.save()
+    
+    # Broadcast the updated comment to all connected clients
+    comment_dict = {
+        "_id": str(comment.id),
+        "dashboard_id": str(comment.dashboard_id),
+        "user_id": str(comment.user_id),
+        "content": comment.content,
+        "coordinates": comment.coordinates,
+        "created_at": comment.created_at.isoformat(),
+        "updated_at": comment.updated_at.isoformat()
+    }
+    await comment_connection_manager.broadcast_comment_updated(
+        str(comment.dashboard_id),
+        comment_dict
+    )
+    
     return comment
 
 # DELETE Elimina un comentario por Id.
@@ -176,7 +243,17 @@ async def delete_comment(comment_id: PydanticObjectId):
     if not comment:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Comentario no encontrado")
 
+    dashboard_id = str(comment.dashboard_id)
+    comment_id_str = str(comment.id)
+    
     await comment.delete()
+    
+    # Broadcast the deletion to all connected clients
+    await comment_connection_manager.broadcast_comment_deleted(
+        dashboard_id,
+        comment_id_str
+    )
+    
     return {"message": "Comentario eliminado"}
 
 # DELETE Elimina un comentario por texto específico.
@@ -187,5 +264,15 @@ async def delete_comment_by_text(comment_text: str):
     if not comment:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Comentario no encontrado")
 
+    dashboard_id = str(comment.dashboard_id)
+    comment_id_str = str(comment.id)
+    
     await comment.delete()
+    
+    # Broadcast the deletion to all connected clients
+    await comment_connection_manager.broadcast_comment_deleted(
+        dashboard_id,
+        comment_id_str
+    )
+    
     return {"message": "Comentario eliminado"}

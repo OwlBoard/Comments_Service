@@ -1,12 +1,13 @@
 # src/models.py
 from beanie import Document, PydanticObjectId #si
 from pydantic import Field, validator
-from typing import List
+from typing import List, Optional
 from datetime import datetime, timezone
 
 class Comment(Document):
     dashboard_id: PydanticObjectId
     user_id: PydanticObjectId
+    user_name: Optional[str] = None  # Store username for display purposes
     content: str = Field(..., max_length=500)
     coordinates: List[float]
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
