@@ -8,14 +8,17 @@ class CommentBase(BaseModel):
 
 class CommentCreate(CommentBase):
     coordinates: str = Field(..., pattern=r"^-?\d+(\.\d+)?,-?\d+(\.\d+)?$", json_schema_extra={"example": "150.5,320.0"})
+    user_name: Optional[str] = Field(None, json_schema_extra={"example": "john_doe"})  # Optional username
 
 class CommentUpdate(BaseModel):
     content: Optional[str] = Field(None, min_length=1, max_length=500, json_schema_extra={"example": "He actualizado mi comentario."})
+    coordinates: Optional[List[float]] = Field(None, min_items=2, max_items=2, json_schema_extra={"example": [150.5, 320.0]})
 
 class CommentOut(CommentBase):
     id: PydanticObjectId = Field(..., alias="_id")
     dashboard_id: PydanticObjectId
     user_id: PydanticObjectId
+    user_name: Optional[str] = None  # Include username in response
     coordinates: List[float]
     created_at: datetime
     updated_at: datetime
