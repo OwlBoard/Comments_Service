@@ -13,11 +13,14 @@ async def test_create_comment(async_client: AsyncClient):
     """Prueba la creación exitosa de un comentario."""
     dashboard_id = "615d08a7a8b2b2a7c2f8a8b3"
     user_id = "615d08a7a8b2b2a7c2f8a8b4"
-    coordinates = "10.5,20.2"
-    comment_data = {"content": "Este es un nuevo comentario de prueba."}
+    comment_data = {
+        "content": "Este es un nuevo comentario de prueba.",
+        "coordinates": "10.5,20.2",
+        "user_name": "test_user"
+    }
 
     response = await async_client.post(
-        f"/comments/dashboards/{dashboard_id}/users/{user_id}/comments?coordinates={coordinates}",
+        f"/comments/dashboards/{dashboard_id}/users/{user_id}/comments",
         json=comment_data
     )
 
