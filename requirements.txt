@@ -7,6 +7,9 @@ uvicorn[standard]
 # WebSocket support
 websockets
 
+# HTTP client for Auth Service communication
+httpx
+
 # JSON logging
 python-json-logger
 
