@@ -30,15 +30,14 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-# CORS is now handled by the API Gateway (nginx) to avoid duplicate headers
-# If you need CORS for direct access (not through API Gateway), uncomment this:
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=origins,
-#     allow_credentials=True,
-#     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-#     allow_headers=["*"],
-# )
+# Aplicar CORS middleware
+#app.add_middleware(
+#    CORSMiddleware,
+#    allow_origins=origins,
+#    allow_credentials=True,
+#    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+#    allow_headers=["*"],
+#)
 
 # API REST
 app.include_router(comments_router, prefix="/comments", tags=["Comments"])
