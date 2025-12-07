@@ -237,7 +237,7 @@ async def update_comment_coordinates(comment_id: PydanticObjectId, coordinates: 
     return comment
 
 # DELETE Elimina un comentario por Id.
-@router.delete("/{comment_id}", status_code=status.HTTP_200_OK, summary="Eliminar un comentario por ID")
+@router.delete("/{comment_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Eliminar un comentario por ID")
 async def delete_comment(comment_id: PydanticObjectId):
     comment = await Comment.get(comment_id)
     if not comment:
@@ -254,7 +254,7 @@ async def delete_comment(comment_id: PydanticObjectId):
         comment_id_str
     )
     
-    return {"message": "Comentario eliminado"}
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 # DELETE Elimina un comentario por texto específico.
 @router.delete("/text/{comment_text}", status_code=status.HTTP_200_OK, summary="Eliminar un comentario por su contenido")
